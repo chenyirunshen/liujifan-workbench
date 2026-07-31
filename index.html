@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>刘继凡工作台 · 努力学习的凡哥</title>
+<style>
+  :root{
+    --bg:#0E1A2B; --panel:#16263B; --panel2:#1C3148; --line:#26405C;
+    --ink:#E8EEF5; --muted:#8BA0B8; --deep:#1B3A5C; --bright:#4A90D9;
+    --warm:#F5F1EA; --amber:#E0A458; --teal:#5FB49C; --pink:#C98BB9;
+    --ok:#46C08A; --warn:#E0A458; --bad:#D9695F;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;}
+  a{color:var(--bright);text-decoration:none}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px}
+  /* Top bar */
+  .topbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+    background:linear-gradient(120deg,var(--deep),var(--panel2));border:1px solid var(--line);
+    border-radius:16px;padding:16px 22px;margin-bottom:16px}
+  .brand{display:flex;align-items:center;gap:14px}
+  .logo{width:46px;height:46px;border-radius:12px;background:var(--bright);display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:20px;color:#fff;box-shadow:0 4px 14px rgba(74,144,217,.4)}
+  .brand h1{font-size:19px;letter-spacing:.5px}
+  .brand p{font-size:12px;color:var(--muted)}
+  .topmeta{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-size:13px;color:var(--muted)}
+  .chip b{color:var(--ink)}
+  .pub{background:rgba(70,192,138,.15);border-color:var(--ok);color:var(--ok);font-weight:700}
+  .progress{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-size:13px}
+  .progress b{color:var(--amber)}
+  /* Tabs */
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .tab{background:var(--panel);border:1px solid var(--line);color:var(--muted);padding:9px 16px;border-radius:11px;
+    font-size:14px;cursor:pointer;transition:.15s;user-select:none}
+  .tab:hover{color:var(--ink);border-color:var(--bright)}
+  .tab.on{background:var(--bright);color:#fff;border-color:var(--bright);font-weight:700}
+  .panel{display:none;animation:fade .25s}
+  .panel.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
+  .card h2{font-size:16px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .card .sub{color:var(--muted);font-size:12px;margin-bottom:14px}
+  .pillar-tag{display:inline-block;font-size:11px;padding:2px 9px;border-radius:999px;font-weight:700}
+  .p-emotion{background:rgba(74,144,217,.18);color:var(--bright)}
+  .p-cognition{background:rgba(224,164,88,.18);color:var(--amber)}
+  .p-daily{background:rgba(95,180,156,.18);color:var(--teal)}
+  .p-interactive{background:rgba(201,139,185,.18);color:var(--pink)}
+  /* Tasks */
+  .task{display:flex;align-items:flex-start;gap:11px;padding:11px 13px;border:1px solid var(--line);
+    border-radius:11px;margin-bottom:9px;background:var(--panel2);transition:.15s}
+  .task:hover{border-color:var(--bright)}
+  .task input{margin-top:5px;width:17px;height:17px;accent-color:var(--bright);cursor:pointer;flex-shrink:0}
+  .task .txt{flex:1;font-size:14px}
+  .task.done .txt{text-decoration:line-through;color:var(--muted)}
+  .task .del{color:var(--bad);cursor:pointer;font-size:13px;opacity:.6}
+  .task .del:hover{opacity:1}
+  .addrow{display:flex;gap:8px;margin-top:6px}
+  input[type=text],textarea,select{width:100%;background:var(--bg);border:1px solid var(--line);color:var(--ink);
+    border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;outline:none}
+  input[type=text]:focus,textarea:focus,select:focus{border-color:var(--bright)}
+  button.btn{background:var(--bright);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-size:14px;
+    cursor:pointer;font-weight:600;transition:.15s;white-space:nowrap}
+  button.btn:hover{filter:brightness(1.1)}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+  button.ghost:hover{color:var(--ink);border-color:var(--bright)}
+  /* Grid */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  @media(max-width:820px){.grid2,.grid3{grid-template-columns:1fr}}
+  /* Hot topic cards */
+  .topic{background:var(--panel2);border:1px solid var(--line);border-radius:13px;padding:14px;cursor:pointer;transition:.15s}
+  .topic:hover{border-color:var(--bright);transform:translateY(-2px)}
+  .topic h3{font-size:15px;margin:8px 0 4px}
+  .topic .heat{font-size:12px;color:var(--amber);font-weight:600}
+  .topic .why{font-size:12px;color:var(--muted);margin-top:6px}
+  .filterbar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+  .filterbar .f{font-size:13px;padding:6px 13px;border-radius:999px;border:1px solid var(--line);
+    background:var(--panel);color:var(--muted);cursor:pointer}
+  .filterbar .f.on{background:var(--bright);color:#fff;border-color:var(--bright);font-weight:700}
+  /* Draft output */
+  .draft{background:var(--bg);border:1px dashed var(--line);border-radius:12px;padding:16px;margin-top:12px}
+  .draft .blk{margin-bottom:13px}
+  .draft .lab{font-size:12px;color:var(--bright);font-weight:700;letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase}
+  .draft .val{font-size:14px}
+  .draft ul{margin-left:18px}
+  .draft li{margin-bottom:4px}
+  .draft .tt{background:var(--panel2);border-left:3px solid var(--bright);padding:8px 12px;border-radius:7px;margin-bottom:7px;font-size:14px}
+  .copy{font-size:12px;padding:5px 11px}
+  /* Review */
+  .field{margin-bottom:11px}
+  .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+  .review-item{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:11px}
+  .review-item .hd{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  .review-item .ttl{font-weight:700;font-size:15px}
+  .stars{color:var(--amber);font-size:15px}
+  .opt{background:rgba(224,164,88,.1);border-left:3px solid var(--amber);padding:9px 12px;border-radius:7px;font-size:13px;margin-top:8px}
+  .opt b{color:var(--amber)}
+  /* Inspiration */
+  .insp{background:linear-gradient(135deg,var(--deep),var(--panel2));border:1px solid var(--line);
+    border-radius:16px;padding:24px;margin-bottom:14px}
+  .insp .q{font-size:21px;font-weight:700;line-height:1.5;margin:10px 0}
+  .insp .src{color:var(--muted);font-size:13px}
+  .insp .mini{margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .insp .mini .box{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:11px;padding:13px}
+  .insp .mini .box h4{font-size:13px;color:var(--teal);margin-bottom:6px}
+  .insp .mini .box p{font-size:13px;color:var(--ink)}
+  .empty{color:var(--muted);font-size:13px;text-align:center;padding:20px}
+  .foot{text-align:center;color:var(--muted);font-size:12px;margin:24px 0 8px}
+  .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:var(--bright);color:#fff;
+    padding:10px 20px;border-radius:999px;font-size:14px;opacity:0;transition:.3s;pointer-events:none;z-index:99}
+  .toast.show{opacity:1}
+  .kbd{font-size:11px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">凡</div>
+      <div>
+        <h1>刘继凡工作台</h1>
+        <p>努力学习的凡哥 · 自媒体作战中枢</p>
+      </div>
+    </div>
+    <div class="topmeta">
+      <span class="chip" id="todayChip">📅 —</span>
+      <span class="chip" id="pubChip">发布日</span>
+      <span class="progress" id="taskProg">待办 <b>0/0</b></span>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab on" data-tab="tasks">📋 每日任务</div>
+    <div class="tab" data-tab="xuean">📝 学案提生成</div>
+    <div class="tab" data-tab="hot">🔥 爆款热点二创</div>
+    <div class="tab" data-tab="review">📊 内容复盘</div>
+    <div class="tab" data-tab="insp">💡 每日灵感</div>
+  </div>
+
+  <!-- 1. TASKS -->
+  <section class="panel on" id="panel-tasks">
+    <div class="card">
+      <h2>📋 今天该干什么 <span class="kbd" id="planHint"></span></h2>
+      <div class="sub">发布日（周二/四/六）自动生成发布流水线；非发布日自动生成日常积累任务。勾选即存，刷新不丢。</div>
+      <div id="taskList"></div>
+      <div class="addrow">
+        <input type="text" id="taskInput" placeholder="加一条今天的任务…" />
+        <button class="btn" onclick="addTask()">添加</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. XUEAN -->
+  <section class="panel" id="panel-xuean">
+    <div class="card">
+      <h2>📝 学案提生成器</h2>
+      <div class="sub">选内容支柱 + （可选）挑一个热点，一键产出符合你嗓音的学案：标题方案 / 开头钩子 / 正文结构 / 结尾CTA / 配图 / 发布时间。</div>
+      <div class="grid2">
+        <div class="field">
+          <label>① 内容支柱</label>
+          <select id="xaPillar"></select>
+        </div>
+        <div class="field">
+          <label>② 绑定热点（可空，留空则纯自由命题）</label>
+          <select id="xaTopic"><option value="">— 自由命题 —</option></select>
+        </div>
+      </div>
+      <div class="field">
+        <label>③ 你的真实素材 / 角度（一句话即可，越真越好）</label>
+        <input type="text" id="xaSeed" placeholder="例：昨天加班到十点，路上听见有人叹气…" />
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="genXueAn()">生成学案提</button>
+        <button class="ghost btn" onclick="saveXueAnToTask()">存为今日待办</button>
+      </div>
+      <div id="xueanOut"></div>
+    </div>
+  </section>
+
+  <!-- 3. HOT -->
+  <section class="panel" id="panel-hot">
+    <div class="card">
+      <h2>🔥 抖音爆款热点 · 凡哥风二创</h2>
+      <div class="sub">数据由每日自动任务刷新（最近更新：<span id="hotDate">—</span>）。点卡片看完整二创方案。</div>
+      <div class="filterbar" id="hotFilter"></div>
+      <div class="grid3" id="hotGrid"></div>
+    </div>
+    <div class="card" id="hotDetail" style="display:none">
+      <h2 id="hdTitle">二创方案</h2>
+      <div class="sub" id="hdMeta"></div>
+      <div id="hdBody"></div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn" onclick="hotToXueAn()">基于此生成学案提 →</button>
+        <button class="ghost btn" onclick="copyHot()">复制方案</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. REVIEW -->
+  <section class="panel" id="panel-review">
+    <div class="card">
+      <h2>📊 内容复盘 · 哪里能优化</h2>
+      <div class="sub">每发一篇就记一次。系统按支柱+数据自动给优化建议，下次写稿直接避坑。</div>
+      <div class="grid2">
+        <div class="field"><label>日期</label><input type="text" id="rvDate" placeholder="2026-07-30"></div>
+        <div class="field"><label>平台</label>
+          <select id="rvPlat"><option>公众号</option><option>视频号</option><option>小红书</option><option>抖音</option></select>
+        </div>
+        <div class="field"><label>标题</label><input type="text" id="rvTitle" placeholder="发的那篇标题"></div>
+        <div class="field"><label>内容支柱</label><select id="rvPillar"></select></div>
+        <div class="field"><label>阅读/播放量</label><input type="text" id="rvRead" placeholder="如 320"></div>
+        <div class="field"><label>点赞</label><input type="text" id="rvLike" placeholder="如 28"></div>
+        <div class="field"><label>评论</label><input type="text" id="rvCmt" placeholder="如 9"></div>
+        <div class="field"><label>转发</label><input type="text" id="rvShare" placeholder="如 4"></div>
+      </div>
+      <div class="field"><label>自评（1-5星，凭手感）</label>
+        <select id="rvStar"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select>
+      </div>
+      <div class="field"><label>你自己的反思（可选）</label>
+        <textarea id="rvNote" rows="2" placeholder="这次哪里满意/不满意…"></textarea>
+      </div>
+      <button class="btn" onclick="saveReview()">保存复盘</button>
+    </div>
+    <div id="reviewList"></div>
+  </section>
+
+  <!-- 5. INSP -->
+  <section class="panel" id="panel-insp">
+    <div class="card">
+      <h2>💡 每日灵感来源</h2>
+      <div class="sub">每天稳定一张灵感卡（按日期锁定），点「换一张」随机抽。名言+选题+可拍小镜头，专治没灵感。</div>
+      <div class="insp" id="inspCard"></div>
+      <button class="btn" onclick="randInsp()">换一张随机灵感</button>
+    </div>
+  </section>
+
+  <div class="foot">刘继凡工作台 · 本地运行 · 数据存在你浏览器里 · 热点每日自动刷新</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="workbench-data.js"></script>
+<script>
+/* ============ 配置 ============ */
+const PILLARS = [
+  {key:"emotion",    name:"情感成长",     weight:35, cls:"p-emotion"},
+  {key:"cognition",  name:"认知观点",     weight:25, cls:"p-cognition"},
+  {key:"daily",      name:"凡哥日常+轻AI", weight:20, cls:"p-daily"},
+  {key:"interactive",name:"互动福利",     weight:20, cls:"p-interactive"}
+];
+const PILLAR_MAP = Object.fromEntries(PILLARS.map(p=>[p.key,p]));
+
+const STYLE_DNA = {
+  hook: "第1句戳痛点/反差 → 第2句预告 → 第3-5句用真事留人",
+  voice: "说话感·大白话·短句·自问自答·金句甩段末，不端着",
+  titleFormulas: ["数字","反转","悬念","对比","利益","故事"],
+  publishTime: "周二/四/六 20:00–21:00",
+  cover: "Q版凡哥站/坐右侧 + 主标题≥40pt，深蓝#1B3A5C+亮蓝#4A90D9+暖白#F5F1EA"
+};
+
+/* 兜底种子（workbench-data.js 加载失败时用） */
+const SEED_TOPICS = (window.WB_DATA && window.WB_DATA.HOT_TOPICS) ? window.WB_DATA.HOT_TOPICS : [
+  {id:"s1",title:"26版西游记民间二创",heat:"5亿播放",pillar:"cognition",date:"2026-07-29",
+   summary:"民间真人cos师徒四人玩职场梗，打工人共鸣。",
+   whyHot:"经典IP承载职场情绪，零成本强共鸣。",
+   recreate:{title:["我把部门群聊看成了取经团队"],hook:"昨天刷到个26版西游记，笑完后背发凉——这分明是我们部门群聊。",structure:["真实职场瞬间","四角色映射","反鸡汤落点","互动：你是哪一个"],compliance:"纯娱乐二创，不涉及单位。"}},
+  {id:"s2",title:"「好不好给我个拥抱」温情刷屏",heat:"2.1万讨论",pillar:"emotion",date:"2026-07-17",
+   summary:"城市夜景配走心文案，戳成年人孤单。",whyHot:"深夜情绪刚需，零剧情高共鸣。",
+   recreate:{title:["深夜下班，我也想要个拥抱"],hook:"昨晚十一点走出单位，风一吹，突然想有个人抱一下。",structure:["夜归场景","报喜不报忧","温柔允许","CTA"],compliance:"第一人称真实感。"}},
+  {id:"s3",title:"平台整治AI谣言",heat:"治理热点",pillar:"cognition",date:"2026-07-26",
+   summary:"平台严查AI虚假灾情画面，科普辨别。",whyHot:"AI信任焦虑，辨别是刚需。",
+   recreate:{title:["3招识破AI假图"],hook:"刷到灾情视频信了——直到发现它六根手指。",structure:["翻车案例","3个辨别法","媒体人较真","避雷互动"],compliance:"只讲公开方法，不传未核实灾情。"}},
+  {id:"s4",title:"Papi酱AI神曲《生气了》",heat:"25亿",pillar:"daily",date:"2026-07-27",
+   summary:"复古闽南风AI神曲，通用BGM。",whyHot:"AI生成+情绪通用，门槛低。",
+   recreate:{title:["我用AI写了首凡哥生气了"],hook:"Papi酱用AI整了神曲，我这个媒体人坐不住了。",structure:["真实生成过程","吐槽好玩","AI是工具","问想听哪句"],compliance:"轻AI日常，不神化。"}},
+  {id:"s5",title:"天台山避暑霸榜",heat:"双话题千万",pillar:"daily",date:"2026-07-25",
+   summary:"一条瀑布成文旅现象。",whyHot:"避暑刚需+视觉冲击。",
+   recreate:{title:["宿迁人别跑远，泗洪就有凉地"],hook:"浙江天台霸榜，泗洪媒体人坐不住。",structure:["拆解爆款","本土过渡","在地流量启示","互动"],compliance:"媒体人观察，不硬广。"}},
+  {id:"s6",title:"甜妹手势舞合拍",heat:"颜值区爆款",pillar:"interactive",date:"2026-07-28",
+   summary:"低门槛手势舞，强互动。",whyHot:"合拍活跃度高。",
+   recreate:{title:["凡哥也来比划两下"],hook:"手残如我居然跟下来了。",structure:["轻松展示","降门槛","互动>完美","交评论区"],compliance:"轻松玩梗。"}},
+  {id:"s7",title:"#时间胶囊写给三年后的自己",heat:"千万播放",pillar:"emotion",date:"2026-07-03",
+   summary:"普通人拍视频给未来自己。",whyHot:"隔三年对话卸伪装。",
+   recreate:{title:["写给三年后上岸的凡哥"],hook:"如果三年后的你收到现在视频，最想说什么？",structure:["备考当下","真话","现在的难三年后小事","评论区"],compliance:"结合真实备考，真诚。"}},
+  {id:"s8",title:"母鸡背小鸡治愈",heat:"20亿",pillar:"emotion",date:"2026-07-03",
+   summary:"母鸡驮小鸡，母爱共鸣。",whyHot:"跨物种本能，零剧本。",
+   recreate:{title:["被妈妈背过的那个下午"],hook:"刷到母鸡背小鸡，想起妈妈弯腰背我。",structure:["童年记忆","包容小娇气","留白","你被谁背过"],compliance:"亲情向，不道德绑架。"}},
+  {id:"s9",title:"古早森系穿搭氛围感",heat:"抖音TOP1",pillar:"interactive",date:"2026-07-27",
+   summary:"旧衣复兴，低成本氛围感。",whyHot:"反精致重氛围。",
+   recreate:{title:["翻出三年前衣服最好看"],hook:"旧T恤随手穿，比新买好看。",structure:["实拍","3镜头","松弛>贵","评论区"],compliance:"实拍，不接推广。"}},
+  {id:"s10",title:"语文老师谈菲尔兹奖",heat:"916万",pillar:"cognition",date:"2026-07-27",
+   summary:"文科生看理科巅峰。",whyHot:"跨界反差+知识获得感。",
+   recreate:{title:["文科生看理科巅峰什么心情"],hook:"语文老师讲菲尔兹奖，我居然看进去了。",structure:["文科生视角","大白话翻译","跨界好奇心","问领域"],compliance:"通俗不装，不误读。"}},
+  {id:"s11",title:"佩德里体验中国文化",heat:"1173万",pillar:"cognition",date:"2026-07-27",
+   summary:"老外看中国新鲜视角。",whyHot:"外来者视角有笑点。",
+   recreate:{title:["老外眼里的中国比我们还会玩"],hook:"佩德里体验中国文化，我想外地人看宿迁也很有意思。",structure:["热点","看自己城市","熟悉处有新鲜","带看啥"],compliance:"客观友善，不引战。"}},
+  {id:"s12",title:"景区实景通新规",heat:"平台新规",pillar:"daily",date:"2026-07-26",
+   summary:"无滤镜实拍整治照骗。",whyHot:"照骗痛点全民共鸣。",
+   recreate:{title:["别再被滤镜骗了"],hook:"网红景点现场下头。",structure:["照骗经历","真实才是流量","拍真实vlog","被哪骗过"],compliance:"基于公开新规，不点名攻击。"}},
+  {id:"s13",title:"叹气向上挑战",heat:"解压梗",pillar:"emotion",date:"2026-07-28",
+   summary:"把叹气唱成歌解压。",whyHot:"情绪出口不沉重。",
+   recreate:{title:["你今天叹气了吗"],hook:"累到想叹气又怕人看见。",structure:["想叹气瞬间","叹气是卸压","变段子","累了就叹"],compliance:"轻松，避免卖惨。"}},
+  {id:"s14",title:"世界杯夜宵热潮",heat:"赛事爆发",pillar:"interactive",date:"2026-07-28",
+   summary:"烧烤啤酒夜市蹭赛事。",whyHot:"赛事+夜宵治愈。",
+   recreate:{title:["备考夜宵是凡哥加油站"],hook:"看书累了最想热乎夜宵。",structure:["夜宵小确幸","不硬蹭赛事","拍法","解压靠啥"],compliance:"真实感，不鼓励过度吃喝。"}},
+  {id:"s15",title:"王虹获菲尔兹奖相关",heat:"—",pillar:"cognition",date:"2026-07-29",
+   summary:"数学新闻通俗解读。",whyHot:"科普刚需。",
+   recreate:{title:["文科生看懂数学奖"],hook:"老师怎么评价这个奖？",structure:["解释奖项","老师视角","认知","问领域"],compliance:"通俗，不误读专业。"}}
+];
+const TOPICS = SEED_TOPICS;
+if(window.WB_DATA && window.WB_DATA.updatedAt) document.getElementById("hotDate").textContent = window.WB_DATA.updatedAt;
+
+/* 灵感池 */
+const QUOTES = [
+  {q:"你不需要很厉害才能开始，你需要开始才能很厉害。",s:"纳瓦尔"},
+  {q:"大多数痛苦来自欲望和现实之间的落差，而不是现实本身。",s:"纳瓦尔"},
+  {q:"我们终将远离那些消耗我们的人，靠近那些让我们安静下来的人。",s:"阿德勒"},
+  {q:"所谓自由，不是想做什么就做什么，而是不想做什么就可以不做什么。",s:"康德"},
+  {q:"你看见的不是一个事件，而是你被训练去看见的那个事件。",s:"布迪厄"},
+  {q:"把一件事做到极致，远胜于把十件事做到凑合。",s:"策略"},
+  {q:"真正的复利，是每天进步一点点的那种安静。",s:"凡哥"},
+  {q:"内容不是表演，是把你真实琢磨过的事，说给听得懂的人。",s:"凡哥"}
+];
+const INSP_TOPICS = [
+  "拍一条「今天我叹气的瞬间」——不解释，就10秒。",
+  "采访一位你身边的「老好人」，问TA什么时候最想拒绝。",
+  "用手机录一段「不加滤镜的泗洪傍晚」，配一句真话。",
+  "翻出三年前的朋友圈，挑一条写成「给当时的自己」回信。",
+  "把一条热搜，用「媒体人视角」说清它为什么火。",
+  "录一段「AI帮我做了一件事」的真实过程，不剪辑翻车。",
+  "写三个你最近「以为懂其实不懂」的词，挑一个讲透。",
+  "拍「我工位上的小确幸」——一杯水、一本书、一支笔。"
+];
+const INSP_SHOTS = [
+  "镜头：公交窗外的路灯拉成线，画外音一句「今天也辛苦了」。",
+  "镜头：手冲咖啡/泡茶的过程特写，配白噪音，不说话。",
+  "镜头：翻书时停住的一页，圈出一句话，抬头看镜头。",
+  "镜头：下班路上的天空，从亮到暗的延时，配一句反思。",
+  "镜头：Q版凡哥贴纸贴在真实书桌角，拟人化「它也在学」。",
+  "镜头：手机相册「最近删除」里没发出的那条，讲为什么没发。"
+];
+
+/* ============ 工具 ============ */
+const $ = s=>document.querySelector(s);
+const $$ = s=>document.querySelectorAll(s);
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1600);}
+function todayStr(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function isPublishDay(){const d=new Date().getDay();return d===2||d===4||d===6;}
+function weekdayName(){return ["周日","周一","周二","周三","周四","周五","周六"][new Date().getDay()];}
+function copyText(t){navigator.clipboard.writeText(t).then(()=>toast("已复制 ✓")).catch(()=>toast("复制失败，请手动选中"));}
+
+/* ============ 顶部 ============ */
+function initTop(){
+  $("#todayChip").innerHTML = "📅 "+todayStr()+" "+weekdayName();
+  const pub = isPublishDay();
+  const pc = $("#pubChip");
+  pc.textContent = pub ? "🟢 今日发布日" : "⚪ 日常积累日";
+  pc.className = "chip" + (pub ? " pub" : "");
+  $("#planHint").textContent = pub ? "（发布流水线已生成）" : "（日常积累任务已生成）";
+  refreshTaskProg();
+}
+
+/* ============ 1. 任务 ============ */
+function defaultTasks(){
+  if(isPublishDay()) return [
+    "确认今日选题（从学案提/爆款热点挑1个）",
+    "写稿（凡哥嗓音：真事开头+大白话+短句）",
+    "排版（内联样式·品牌色·Q版凡哥）",
+    "配图（封面：Q版凡哥+主标题≥40pt）",
+    "20:00–21:00 推送草稿箱",
+    "发后2小时盯数据（阅读/点赞/评论）",
+    "回复评论 + 引导互动CTA"
+  ];
+  return [
+    "抖音热点扫描10分钟（爆款热点面板）",
+    "更新素材库（收藏1条可二创热点）",
+    "读1篇认知文（布迪厄/阿德勒/韦伯/纳瓦尔）",
+    "复盘上周1篇内容（内容复盘模块）",
+    "粉丝互动（回复3条留言/私信）"
+  ];
+}
+function loadTasks(){
+  const key="wb_tasks_"+todayStr();
+  let arr = JSON.parse(localStorage.getItem(key)||"null");
+  if(!arr){
+    arr = defaultTasks().map((t,i)=>({id:"t"+i,text:t,done:false}));
+    localStorage.setItem(key,JSON.stringify(arr));
+  }
+  return arr;
+}
+function saveTasks(arr){localStorage.setItem("wb_tasks_"+todayStr(),JSON.stringify(arr));}
+function renderTasks(){
+  const arr=loadTasks();
+  const box=$("#taskList");box.innerHTML="";
+  arr.forEach(t=>{
+    const d=document.createElement("div");
+    d.className="task"+(t.done?" done":"");
+    d.innerHTML=`<input type="checkbox" ${t.done?"checked":""} data-id="${t.id}">
+      <div class="txt">${escapeHtml(t.text)}</div>
+      <div class="del" data-id="${t.id}">删除</div>`;
+    box.appendChild(d);
+  });
+  box.querySelectorAll('input[type=checkbox]').forEach(c=>{
+    c.onchange=()=>{const id=c.dataset.id;const a=loadTasks();a.find(x=>x.id===id).done=c.checked;saveTasks(a);renderTasks();refreshTaskProg();};
+  });
+  box.querySelectorAll('.del').forEach(b=>{
+    b.onclick=()=>{const id=b.dataset.id;let a=loadTasks();a=a.filter(x=>x.id!==id);saveTasks(a);renderTasks();refreshTaskProg();};
+  });
+}
+function addTask(){
+  const v=$("#taskInput").value.trim();if(!v)return;
+  const a=loadTasks();a.push({id:"t"+Date.now(),text:v,done:false});saveTasks(a);
+  $("#taskInput").value="";renderTasks();refreshTaskProg();
+}
+function refreshTaskProg(){
+  const a=loadTasks();const done=a.filter(x=>x.done).length;
+  $("#taskProg").innerHTML=`待办 <b>${done}/${a.length}</b>`;
+}
+function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+/* ============ 2. 学案提 ============ */
+function fillPillarSelect(sel){
+  sel.innerHTML = PILLARS.map(p=>`<option value="${p.key}">${p.name}（${p.weight}%）</option>`).join("");
+}
+function fillTopicSelect(){
+  const sel=$("#xaTopic");
+  TOPICS.forEach(t=>{const p=PILLAR_MAP[t.pillar];const o=document.createElement("option");o.value=t.id;o.textContent=`[${p.name}] ${t.title}`;sel.appendChild(o);});
+}
+const TITLE_TPL = {
+  emotion:["那个瞬间，我突然懂了______","成年人不说，但都想要______","昨夜______，我破防了"],
+  cognition:["______这件事，媒体人看得更清楚","别被______骗了，真相是______","一个文科生看______的视角"],
+  daily:["我用AI干了件______的事","作为媒体人，我替你______","凡哥实测：______到底行不行"],
+  interactive:["评论区交给你：______","这条______，手残也能拍","不花一分钱，______也能玩"]
+};
+function buildXueAn(pillarKey, topic, seed){
+  const p = PILLAR_MAP[pillarKey];
+  const tpl = TITLE_TPL[pillarKey];
+  let titles = tpl.map(t=>{
+    if(topic){const kw = topic.title.replace(/全网刷屏|爆款|霸榜|破圈|刷屏/g,"").slice(0,8);return t.replace("______",kw||"这件事");}
+    return t.replace("______", seed?seed.slice(0,6):"这件事");
+  });
+  // 钩子
+  let hook;
+  if(topic){hook = topic.recreate.hook;}
+  else if(seed){hook = seed;}
+  else {hook = "最近琢磨一件事，越想越觉得该跟你唠唠。";}
+  // 结构
+  let structure;
+  if(topic && topic.recreate.structure){structure = topic.recreate.structure;}
+  else {structure = ["用一个真实瞬间开场（你自己的，别编）","中间塞一个认知透镜（布迪厄/阿德勒/韦伯/纳瓦尔）","落到「凡哥式反鸡汤」：不灌鸡汤，给一句大白话","结尾抛互动：问读者一个具体的问题"];}
+  const cta = "结尾引导：回复「"+["AI","目录","加群","投稿"][Math.floor(Math.random()*4)]+"」/ 在评论区说一句你的______";
+  const cover = STYLE_DNA.cover;
+  const time = STYLE_DNA.publishTime;
+  return {pillar:p, titles, hook, structure, cta, cover, time, topic};
+}
+function genXueAn(){
+  const pk=$("#xaPillar").value;
+  const tid=$("#xaTopic").value;
+  const seed=$("#xaSeed").value.trim();
+  const topic = tid ? TOPICS.find(t=>t.id===tid) : null;
+  const xa = buildXueAn(pk, topic, seed);
+  window._lastXueAn = xa;
+  const out=$("#xueanOut");
+  out.innerHTML = `<div class="draft">
+    <div class="blk"><div class="lab">适配支柱</div><div class="val"><span class="pillar-tag ${xa.pillar.cls}">${xa.pillar.name} ${xa.pillar.weight}%</span></div></div>
+    <div class="blk"><div class="lab">标题方案（3选1）</div>${xa.titles.map(t=>`<div class="tt">${escapeHtml(t)}</div>`).join("")}</div>
+    <div class="blk"><div class="lab">开头钩子</div><div class="val">${escapeHtml(xa.hook)}</div></div>
+    <div class="blk"><div class="lab">正文结构</div><ul>${xa.structure.map(s=>`<li>${escapeHtml(s)}</li>`).join("")}</ul></div>
+    <div class="blk"><div class="lab">结尾 CTA</div><div class="val">${escapeHtml(xa.cta)}</div></div>
+    <div class="blk"><div class="lab">配图建议</div><div class="val">${escapeHtml(xa.cover)}</div></div>
+    <div class="blk"><div class="lab">发布时间</div><div class="val">${escapeHtml(xa.time)}</div></div>
+  </div>`;
+  toast("学案提已生成 ✓");
+}
+function saveXueAnToTask(){
+  if(!window._lastXueAn){toast("先生成学案提");return;}
+  const xa=window._lastXueAn;
+  const a=loadTasks();
+  a.push({id:"t"+Date.now(),text:"✍️ 写稿：「"+xa.titles[0]+"」",done:false});
+  saveTasks(a);renderTasks();refreshTaskProg();
+  toast("已存为今日待办 ✓");
+}
+function copyXueAn(){
+  if(!window._lastXueAn)return;const x=window._lastXueAn;
+  const txt=`【学案提】${x.pillar.name}\n标题：${x.titles.join(" / ")}\n钩子：${x.hook}\n结构：${x.structure.join("\n- ")}\nCTA：${x.cta}\n配图：${x.cover}\n时间：${x.time}`;
+  copyText(txt);
+}
+
+/* ============ 3. 爆款热点 ============ */
+let hotFilter="all";
+function renderHotFilter(){
+  const bar=$("#hotFilter");
+  const opts=[{k:"all",n:"全部"}].concat(PILLARS.map(p=>({k:p.key,n:p.name})));
+  bar.innerHTML=opts.map(o=>`<div class="f ${hotFilter===o.k?"on":""}" data-k="${o.k}">${o.n}</div>`).join("");
+  bar.querySelectorAll(".f").forEach(f=>f.onclick=()=>{hotFilter=f.dataset.k;renderHotFilter();renderHotGrid();});
+}
+function renderHotGrid(){
+  const g=$("#hotGrid");g.innerHTML="";
+  const list=TOPICS.filter(t=>hotFilter==="all"||t.pillar===hotFilter);
+  if(!list.length){g.innerHTML='<div class="empty">该支柱暂无热点</div>';return;}
+  list.forEach(t=>{
+    const p=PILLAR_MAP[t.pillar];
+    const c=document.createElement("div");c.className="topic";
+    c.innerHTML=`<span class="pillar-tag ${p.cls}">${p.name}</span>
+      <h3>${escapeHtml(t.title)}</h3>
+      <div class="heat">🔥 ${escapeHtml(t.heat)}</div>
+      <div class="why">${escapeHtml(t.whyHot)}</div>`;
+    c.onclick=()=>showHot(t.id);
+    g.appendChild(c);
+  });
+}
+function showHot(id){
+  const t=TOPICS.find(x=>x.id===id);if(!t)return;
+  const p=PILLAR_MAP[t.pillar];
+  window._curHot=t;
+  $("#hotDetail").style.display="block";
+  $("#hdTitle").innerHTML=`<span class="pillar-tag ${p.cls}">${p.name}</span> ${escapeHtml(t.title)}`;
+  $("#hdMeta").textContent=`热度 ${t.heat} · ${t.date} · 为什么火：${t.whyHot}`;
+  const rc=t.recreate;
+  $("#hdBody").innerHTML=`<div class="sub" style="margin-top:10px">${escapeHtml(t.summary)}</div>
+    <div class="draft">
+      <div class="blk"><div class="lab">凡哥风标题方案</div>${rc.title.map(x=>`<div class="tt">${escapeHtml(x)}</div>`).join("")}</div>
+      <div class="blk"><div class="lab">开头钩子</div><div class="val">${escapeHtml(rc.hook)}</div></div>
+      <div class="blk"><div class="lab">正文结构</div><ul>${rc.structure.map(s=>`<li>${escapeHtml(s)}</li>`).join("")}</ul></div>
+      <div class="blk"><div class="lab">合规提醒</div><div class="val" style="color:var(--amber)">${escapeHtml(rc.compliance)}</div></div>
+    </div>`;
+  $("#hotDetail").scrollIntoView({behavior:"smooth"});
+}
+function hotToXueAn(){
+  if(!window._curHot)return;
+  $("#xaPillar").value=window._curHot.pillar;
+  $("#xaTopic").value=window._curHot.id;
+  $("#xaSeed").value="";
+  switchTab("xuean");genXueAn();
+}
+function copyHot(){
+  if(!window._curHot)return;const t=window._curHot;const rc=t.recreate;
+  copyText(`【二创方案】${t.title}\n标题：${rc.title.join(" / ")}\n钩子：${rc.hook}\n结构：${rc.structure.join("\n- ")}\n合规：${rc.compliance}`);
+}
+
+/* ============ 4. 复盘 ============ */
+function saveReview(){
+  const r={
+    date:$("#rvDate").value.trim()||todayStr(),
+    plat:$("#rvPlat").value,
+    title:$("#rvTitle").value.trim()||"（未命名）",
+    pillar:$("#rvPillar").value,
+    read:+$("#rvRead").value||0,
+    like:+$("#rvLike").value||0,
+    cmt:+$("#rvCmt").value||0,
+    share:+$("#rvShare").value||0,
+    star:+$("#rvStar").value,
+    note:$("#rvNote").value.trim()
+  };
+  const key="wb_reviews";let arr=JSON.parse(localStorage.getItem(key)||"[]");
+  arr.unshift(r);localStorage.setItem(key,JSON.stringify(arr));
+  toast("复盘已保存 ✓");
+  // 清空部分
+  ["rvTitle","rvRead","rvLike","rvCmt","rvShare","rvNote"].forEach(i=>$("#"+i).value="");
+  renderReviews();
+}
+function getOptimization(r){
+  const p=PILLAR_MAP[r.pillar];const tips=[];
+  // 通用
+  if(r.star<=3) tips.push("自评偏低——先回看开头前3秒：第1句有没有戳痛点/反差？没戳中就重剪开头。");
+  tips.push("发布时间是否卡在 <b>20:00–21:00</b>？非此时段流量天然打折。");
+  tips.push("封面是否 <b>Q版凡哥+主标题≥40pt</b>？品牌封面能提升识别与点击。");
+  // 支柱
+  if(r.pillar==="emotion"){
+    tips.push("情感文靠「具体场景」：有没有放城市夜景/真实物件？抽象抒情不如一个画面。");
+    if(r.cmt<5) tips.push("评论少→结尾没给「具体动作」，试试抛一个二选一的问题。");
+  }else if(r.pillar==="cognition"){
+    tips.push("认知文要有「反常识点」：用一个社科透镜（布迪厄/阿德勒/韦伯）当钩子。");
+    if(r.share<3) tips.push("转发少→观点不够「可引用」，提炼一句金句放段末方便转。");
+  }else if(r.pillar==="daily"){
+    tips.push("日常+AI要「真实使用场景」：录屏/实拍胜过讲解，AI部分稀释进生活别神化。");
+  }else if(r.pillar==="interactive"){
+    tips.push("互动文必须「评论区有动作」：给选择题/合拍挑战/投稿入口，否则活跃度起不来。");
+  }
+  if(r.note) tips.push("你的反思："+escapeHtml(r.note));
+  return tips;
+}
+function renderReviews(){
+  const key="wb_reviews";let arr=JSON.parse(localStorage.getItem(key)||"[]");
+  const box=$("#reviewList");
+  if(!arr.length){box.innerHTML='<div class="card"><div class="empty">还没有复盘记录，发完一篇就来记一笔。</div></div>';return;}
+  box.innerHTML=arr.map(r=>{
+    const p=PILLAR_MAP[r.pillar];
+    const tips=getOptimization(r);
+    return `<div class="review-item">
+      <div class="hd">
+        <div class="ttl">${escapeHtml(r.title)} <span class="pillar-tag ${p.cls}">${p.name}</span></div>
+        <div class="stars">${"★".repeat(r.star)}${"☆".repeat(5-r.star)}</div>
+      </div>
+      <div class="sub" style="margin:0">${r.date} · ${r.plat} · 阅读/播放 ${r.read} · 赞 ${r.like} · 评 ${r.cmt} · 转 ${r.share}</div>
+      <div class="opt"><b>📌 优化建议：</b><br>${tips.map(t=>"· "+t).join("<br>")}</div>
+    </div>`;
+  }).join("");
+}
+
+/* ============ 5. 灵感 ============ */
+function hashStr(s){let h=0;for(let i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))|0;}return Math.abs(h);}
+function dayInsp(){
+  const seed=hashStr(todayStr());
+  const q=QUOTES[seed%QUOTES.length];
+  const tp=INSP_TOPICS[(seed>>3)%INSP_TOPICS.length];
+  const sh=INSP_SHOTS[(seed>>5)%INSP_SHOTS.length];
+  return {q,tp,sh};
+}
+function renderInsp(){
+  const d=dayInsp();
+  $("#inspCard").innerHTML=`
+    <div class="src">📜 今日金句</div>
+    <div class="q">「${escapeHtml(d.q.q)}」</div>
+    <div class="src">—— ${escapeHtml(d.q.s)}</div>
+    <div class="mini">
+      <div class="box"><h4>💡 今日选题</h4><p>${escapeHtml(d.tp)}</p></div>
+      <div class="box"><h4>🎬 可拍小镜头</h4><p>${escapeHtml(d.sh)}</p></div>
+    </div>`;
+}
+function randInsp(){
+  const q=QUOTES[Math.floor(Math.random()*QUOTES.length)];
+  const tp=INSP_TOPICS[Math.floor(Math.random()*INSP_TOPICS.length)];
+  const sh=INSP_SHOTS[Math.floor(Math.random()*INSP_SHOTS.length)];
+  $("#inspCard").innerHTML=`
+    <div class="src">📜 随机金句</div>
+    <div class="q">「${escapeHtml(q.q)}」</div>
+    <div class="src">—— ${escapeHtml(q.s)}</div>
+    <div class="mini">
+      <div class="box"><h4>💡 选题</h4><p>${escapeHtml(tp)}</p></div>
+      <div class="box"><h4>🎬 小镜头</h4><p>${escapeHtml(sh)}</p></div>
+    </div>`;
+  toast("换了一张 ✓");
+}
+
+/* ============ TAB ============ */
+function switchTab(name){
+  $$(".tab").forEach(t=>t.classList.toggle("on",t.dataset.tab===name));
+  $$(".panel").forEach(p=>p.classList.toggle("on",p.id==="panel-"+name));
+}
+$$(".tab").forEach(t=>t.onclick=()=>switchTab(t.dataset.tab));
+
+/* ============ INIT ============ */
+function init(){
+  initTop();
+  renderTasks();
+  fillPillarSelect($("#xaPillar"));
+  fillPillarSelect($("#rvPillar"));
+  fillTopicSelect();
+  renderHotFilter();renderHotGrid();
+  renderReviews();
+  renderInsp();
+  $("#rvDate").value=todayStr();
+}
+init();
+</script>
+</body>
+</html>
