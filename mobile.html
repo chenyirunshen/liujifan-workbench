@@ -108,6 +108,9 @@ button.ghost{background:transparent;color:var(--sub);border:1px solid var(--line
 .hot h3{font-size:14px;margin:8px 0 4px;line-height:1.4;}
 .hot .heat{font-size:12px;color:var(--orange);font-weight:600;}
 .hot .why{font-size:12px;color:var(--sub);margin-top:6px;line-height:1.5;}
+.hot .actions{margin-top:10px;display:flex;justify-content:flex-end;}
+.recreate-link{display:inline-flex;align-items:center;gap:4px;background:var(--purple);color:#fff;font-size:12px;font-weight:700;padding:7px 12px;border-radius:999px;cursor:pointer;}
+.recreate-link:active{transform:scale(.97);}
 .filterbar{display:flex;gap:7px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px;}
 .filterbar::-webkit-scrollbar{display:none;}
 .filterbar .f{flex:0 0 auto;font-size:13px;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--sub);cursor:pointer;font-family:inherit;}
@@ -258,6 +261,7 @@ button.ghost{background:transparent;color:var(--sub);border:1px solid var(--line
         <div id="hdBody"></div>
         <div style="display:flex;gap:8px;margin-top:10px">
           <button class="btn full" onclick="hotToXueAn()">基于此生成学案提 →</button>
+          <a class="btn full" href="recreate.html?id=${t.id}" style="text-align:center;display:flex;align-items:center;justify-content:center;background:var(--purple)">🚀 直接复刻</a>
         </div>
       </div>
     </section>
@@ -574,7 +578,7 @@ function renderHotGrid(){
   list.forEach(t => {
     const p = PILLAR_MAP[t.pillar];
     const c = document.createElement("div"); c.className = "hot";
-    c.innerHTML = `<span class="tag ${p.cls}">${p.name}</span><h3>${esc(t.title)}</h3><div class="heat">🔥 ${esc(t.heat)}</div><div class="why">${esc(t.whyHot)}</div>`;
+    c.innerHTML = `<span class="tag ${p.cls}">${p.name}</span><h3>${esc(t.title)}</h3><div class="heat">🔥 ${esc(t.heat)}</div><div class="why">${esc(t.whyHot)}</div><div class="actions"><a class="recreate-link" href="recreate.html?id=${t.id}" onclick="event.stopPropagation()">🚀 直接复刻</a></div>`;
     c.onclick = () => showHot(t.id);
     g.appendChild(c);
   });
